@@ -20,9 +20,8 @@ class IRCClient(asyncio.Protocol):
         pass
     
     def data_received(self, data):
-        data = data.decode('utf-8')
-        data = self.buffer + data
-        lines=data.split('\r\n')
+        data = self.buffer + data.decode('utf-8').replace('\r', '')
+        lines=data.split('\n')
         self.buffer=lines.pop()
         for line in lines:
             self.line_received(line)
