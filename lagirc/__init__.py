@@ -1,10 +1,10 @@
 # coding=utf-8
 import asyncio
-from asyncirc.rfc import rfc
+from lagirc.rfc import rfc
 
 class IRCClient(asyncio.Protocol):
 
-    nickname = 'asyncirc'
+    nickname = 'lagirc'
     username = nickname
     realname = nickname
     
