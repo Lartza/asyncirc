@@ -1,8 +1,8 @@
 # coding=utf-8
 import asyncio
-import asyncirc
+import lagirc
 
-class testClient(asyncirc.IRCClient):
+class testClient(lagirc.IRCClient):
 
     nickname = 'testClient'
 
