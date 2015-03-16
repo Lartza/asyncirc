@@ -1,4 +1,11 @@
-# coding=utf-8
+#!/usr/bin/env python3
+#coding=utf-8
+# lagirc, simple Python irc library
+# Copyright (C) 2015  Lari Tikkanen
+#
+# Released under the GPLv3
+# See LICENSE for details.
+
 import asyncio
 from lagirc.rfc import rfc
 

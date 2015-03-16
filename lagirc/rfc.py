@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+#coding=utf-8
+# lagirc, simple Python irc library
+# Copyright (C) 2015  Lari Tikkanen
+#
+# Released under the GPLv3
+# See LICENSE for details.
+
 class rfc():
     numerics = {
         '001': 'RPL_WELCOME',
