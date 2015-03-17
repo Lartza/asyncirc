@@ -11,12 +11,11 @@ from lagirc.rfc import rfc
 
 class IRCClient(asyncio.Protocol):
 
-    nickname = 'lagirc'
-    username = nickname
-    realname = nickname
-    
-    buffer = ''
-    queue = []
+    def __init__(self):
+        self.buffer = ''
+        self.nickname = 'lagirc'
+        self.username = nickname
+        self.realname = nickname
 
     def connection_made(self, transport):
         self.transport = transport
@@ -111,7 +110,7 @@ class IRCClient(asyncio.Protocol):
             channels = ','.join(channels)
         except:
             pass
-        self.send_line('JOIN {0} :{1}'.format(channels, message))
+        self.send_line('PART {0} :{1}'.format(channels, message))
 
     def PASS(self, password):
         self.send_line('PASS {0}'.format(password))
