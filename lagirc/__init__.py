@@ -14,8 +14,8 @@ class IRCClient(asyncio.Protocol):
     def __init__(self):
         self.buffer = ''
         self.nickname = 'lagirc'
-        self.username = nickname
-        self.realname = nickname
+        self.username = self.nickname
+        self.realname = self.nickname
 
     def connection_made(self, transport):
         self.transport = transport
