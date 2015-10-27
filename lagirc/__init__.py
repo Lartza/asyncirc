@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#coding=utf-8
+# coding=utf-8
 # lagirc, simple Python irc library
 # Copyright (C) 2015  Lari Tikkanen
 #
@@ -9,6 +9,7 @@
 import asyncio
 from lagirc.rfc import rfc
 
+
 class IRCClient(asyncio.Protocol):
 
     def __init__(self):
@@ -16,6 +17,7 @@ class IRCClient(asyncio.Protocol):
         self.nickname = 'lagirc'
         self.username = self.nickname
         self.realname = self.nickname
+        self.transport = None
 
     def connection_made(self, transport):
         self.transport = transport
@@ -27,8 +29,8 @@ class IRCClient(asyncio.Protocol):
     
     def data_received(self, data):
         data = self.buffer + data.decode('utf-8').replace('\r', '')
-        lines=data.split('\n')
-        self.buffer=lines.pop()
+        lines = data.split('\n')
+        self.buffer = lines.pop()
         for line in lines:
             self.line_received(line)
 
@@ -40,7 +42,6 @@ class IRCClient(asyncio.Protocol):
 
     def parse_line(self, line):
         prefix = ''
-        trailing = []
         if line[0] == ':':
             prefix, line = line[1:].split(' ', 1)
         if ' :' in line:
@@ -58,12 +59,11 @@ class IRCClient(asyncio.Protocol):
             method(prefix, params)
 
     def send_line(self, line):
-        asyncio.async(self._send_line(line))
+        asyncio.ensure_future(self._send_line(line))
 
-    @asyncio.coroutine
-    def _send_line(self, line):
+    async def _send_line(self, line):
         if not line.endswith('\r\n'):
-            line = line + '\r\n'
+            line += '\r\n'
         self.transport.write(line.encode('utf-8'))
         yield from asyncio.sleep(1)
 
