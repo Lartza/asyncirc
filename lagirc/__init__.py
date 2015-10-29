@@ -65,7 +65,7 @@ class IRCClient(asyncio.Protocol):
         if not line.endswith('\r\n'):
             line += '\r\n'
         self.transport.write(line.encode('utf-8'))
-        yield from asyncio.sleep(1)
+        await asyncio.sleep(1)
 
     def connected(self):
         pass
