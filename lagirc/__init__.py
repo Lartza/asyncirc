@@ -54,7 +54,7 @@ class IRCClient(asyncio.Protocol):
         return prefix, command, params
 
     def handle_command(self, prefix, command, params):
-        method = getattr(self, "irc_{0}".format(command), None)
+        method = getattr(self, 'irc_{0}'.format(command), None)
         if method:
             method(prefix, params)
 
@@ -106,13 +106,11 @@ class IRCClient(asyncio.Protocol):
         self.send_line('NOTICE {0} :{1}'.format(msgtarget, message))
 
     def part(self, channels, message=''):
-        try:
+        if not isinstance(channels, str):
             channels = ','.join(channels)
-        except:
-            pass
         self.send_line('PART {0} :{1}'.format(channels, message))
 
-    def PASS(self, password):
+    def password(self, password):
         self.send_line('PASS {0}'.format(password))
 
     def pong(self, server1):
