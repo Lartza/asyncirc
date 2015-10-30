@@ -26,7 +26,7 @@ class IRCClient(asyncio.Protocol):
         self.user(self.username, self.realname)
 
     def connection_lost(self, exc):
-        """Called when connection to the server is lost."""
+        """Called when connection to the server is lost"""
         pass
     
     def data_received(self, data):
@@ -40,7 +40,7 @@ class IRCClient(asyncio.Protocol):
             self.line_received(line)
 
     def line_received(self, line):
-        """Turns the line to an IRC message in usable format."""
+        """Turns the line to an IRC message in usable format"""
         # Pass line for splitting
         prefix, command, params = self.parse_line(line)
         # Convert IRC numerics to message names
@@ -85,7 +85,7 @@ class IRCClient(asyncio.Protocol):
         pass
 
     def privmsg_received(self, user, channel, message):
-        """Called for every PRIVMSG received from the server."""
+        """Called for every PRIVMSG received from the server"""
         pass
 
     def raw(self, command):
