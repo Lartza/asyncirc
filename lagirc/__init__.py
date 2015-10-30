@@ -18,6 +18,7 @@ class IRCClient(asyncio.Protocol):
         self.username = self.nickname
         self.realname = self.nickname
         self.transport = None
+        self.channels = []
 
     def connection_made(self, transport):
         """Called when a connection to the server has been established. (Not the same as RPL_WELCOME received.)"""
@@ -101,10 +102,13 @@ class IRCClient(asyncio.Protocol):
         self.send_line('INVITE {0} {1}'.format(nickname, channel))
 
     def join(self, channels, keys=''):
-        if type(channels) == list:
+        if not isinstance(channels, str):
             channels = ','.join(channels)
-        if type(keys) == list:
+        if not isinstance(keys, str):
             keys = ','.join(keys)
+        for chan in channels.split(','):
+            if chan not in self.channels:
+                self.channels.append(chan)
         self.send_line('JOIN {0} {1}'.format(channels, keys))
 
     def kick(self, channel, client, message=''):
@@ -123,6 +127,9 @@ class IRCClient(asyncio.Protocol):
     def part(self, channels, message=''):
         if not isinstance(channels, str):
             channels = ','.join(channels)
+        for chan in channels.split(','):
+            if chan in self.channels:
+                self.channels.remove(chan)
         self.send_line('PART {0} :{1}'.format(channels, message))
 
     def password(self, password):
