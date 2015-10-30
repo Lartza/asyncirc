@@ -38,19 +38,19 @@ class IRCClient(asyncio.Protocol):
         self.buffer = lines.pop()
         # Send each IRC message to be parsed
         for line in lines:
-            self.line_received(line)
+            asyncio.ensure_future(self.line_received(line))
 
-    def line_received(self, line):
+    async def line_received(self, line):
         """Turns the line to an IRC message in usable format."""
-        # Pass line for splitting
-        prefix, command, params = self.parse_line(line)
+        # Pass line for splitting. prefix, command, params
+        result = await self.parse_line(line)
         # Convert IRC numerics to message names
-        if command in rfc.numerics:
-            command = rfc.numerics[command]
+        if result[1] in rfc.numerics:
+            result[1] = rfc.numerics[result[1]]
         # Send the text format message to be handled
-        self.handle_command(prefix, command, params)
+        asyncio.ensure_future(self.handle_command(result[0], result[1], result[2]))
 
-    def parse_line(self, line):
+    async def parse_line(self, line):
         """Returns a line split to it's components."""
         prefix = ''
         if line[0] == ':':
@@ -62,15 +62,15 @@ class IRCClient(asyncio.Protocol):
         else:
             params = line.split()
         command = params.pop(0)
-        return prefix, command, params
+        return [prefix, command, params]
 
-    def handle_command(self, prefix, command, params):
+    async def handle_command(self, prefix, command, params):
         """Call methods that handle IRC messages."""
         # Convert the IRC message to a method, ex: irc_MESSAGE
         method = getattr(self, 'irc_{0}'.format(command), None)
         # Call the method if it exists
         if method:
-            method(prefix, params)
+            asyncio.ensure_future(method(prefix, params))
 
     def send_line(self, line):
         asyncio.ensure_future(self._send_line(line))
@@ -81,11 +81,11 @@ class IRCClient(asyncio.Protocol):
         self.transport.write(line.encode('utf-8'))
         await asyncio.sleep(1)
 
-    def connected(self):
+    async def connected(self):
         """Called after RPL_WELCOME has been received from the server."""
         pass
 
-    def privmsg_received(self, user, channel, message):
+    async def privmsg_received(self, user, channel, message):
         """Called for every PRIVMSG received from the server."""
         pass
 
@@ -150,11 +150,11 @@ class IRCClient(asyncio.Protocol):
     def user(self, user, realname):
         self.send_line('USER {0} {1} {2} :{3}'.format(user, '0', '*', realname))
 
-    def irc_PING(self, prefix, params):
+    async def irc_PING(self, prefix, params):
         self.pong(params[-1])
 
-    def irc_PRIVMSG(self, prefix, params):
-        self.privmsg_received(prefix, params[0], params[-1])
+    async def irc_PRIVMSG(self, prefix, params):
+        asyncio.ensure_future(self.privmsg_received(prefix, params[0], params[-1]))
 
-    def irc_RPL_WELCOME(self, prefix, params):
-        self.connected()
+    async def irc_RPL_WELCOME(self, prefix, params):
+        asyncio.ensure_future(self.connected())
