@@ -20,27 +20,37 @@ class IRCClient(asyncio.Protocol):
         self.transport = None
 
     def connection_made(self, transport):
+        """Called when a connection to the server has been established. (Not the same as RPL_WELCOME received.)"""
         self.transport = transport
         self.nick(self.nickname)
         self.user(self.username, self.realname)
 
     def connection_lost(self, exc):
+        """Called when connection to the server is lost"""
         pass
     
     def data_received(self, data):
+        """Decodes received data and splits it to lines."""
         data = self.buffer + data.decode('utf-8').replace('\r', '')
+        # Split data received from the IRC server to lines
         lines = data.split('\n')
         self.buffer = lines.pop()
+        # Send each IRC message to be parsed
         for line in lines:
             self.line_received(line)
 
     def line_received(self, line):
+        """Turns the line to an IRC message in usable format"""
+        # Pass line for splitting
         prefix, command, params = self.parse_line(line)
+        # Convert IRC numerics to message names
         if command in rfc.numerics:
             command = rfc.numerics[command]
+        # Send the text format message to be handled
         self.handle_command(prefix, command, params)
 
     def parse_line(self, line):
+        """Returns a line split to it's components."""
         prefix = ''
         if line[0] == ':':
             prefix, line = line[1:].split(' ', 1)
@@ -54,7 +64,10 @@ class IRCClient(asyncio.Protocol):
         return prefix, command, params
 
     def handle_command(self, prefix, command, params):
+        """Call methods that handle IRC messages."""
+        # Convert the IRC message to a method, ex: irc_MESSAGE
         method = getattr(self, 'irc_{0}'.format(command), None)
+        # Call the method if it exists
         if method:
             method(prefix, params)
 
@@ -68,9 +81,11 @@ class IRCClient(asyncio.Protocol):
         await asyncio.sleep(1)
 
     def connected(self):
+        """Called after RPL_WELCOME has been received from the server."""
         pass
 
     def privmsg_received(self, user, channel, message):
+        """Called for every PRIVMSG received from the server"""
         pass
 
     def raw(self, command):
